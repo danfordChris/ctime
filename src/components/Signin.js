@@ -47,7 +47,7 @@ const Signin = ({ loadUser, setSignedin }) => {
     }
   
     // Check if the provided email and password match the admin's credentials
-    if (signInEmail === "admin@example.com" && signInPassword === "adminPassword") {
+    if (signInEmail === "admin" && signInPassword === "admin") {
       // Set up the admin user object however you have it structured
       const adminUser = {
         _id: "adminId",

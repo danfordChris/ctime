@@ -1,16 +1,17 @@
+// Navbar.js
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Dark from "../Image/night-mode.png";
 import Light from "../Image/brightness.png";
 import User from "../Image/user.png";
-// import { useNavigate } from "react-router-dom";
 
-const Navbar = ({ setSignedin, initialState }) => {
+const Navbar = ({ setSignedin }) => {
   const [mode, setMode] = useState("light");
-  // const navigate = useNavigate();
+
   const handleSignout = () => {
     setSignedin(false);
   };
+
   const toggleMode = () => {
     if (mode === "dark") {
       setMode("light");
@@ -25,11 +26,9 @@ const Navbar = ({ setSignedin, initialState }) => {
 
   return (
     <div>
-      <nav
-        className={`navbar navbar-expand-lg ${
-          mode === "light" ? "navbar-dark bg-dark" : "navbar-light bg-light"
-        }`}
-      >
+      <nav className={`navbar navbar-expand-lg ${
+        mode === "light" ? "navbar-dark bg-dark" : "navbar-light bg-light"
+      }`}>
         <div className="container-fluid">
           <Link className="navbar-brand" to="/">
             NewsSphere
@@ -77,6 +76,11 @@ const Navbar = ({ setSignedin, initialState }) => {
                   Technology
                 </Link>
               </li>
+              <li className="nav-item"> {/* Add Tools link */}
+                <Link className="nav-link" to="/tools">
+                  Tools
+                </Link>
+              </li>
             </ul>
           </div>
           <img
@@ -113,9 +117,7 @@ const Navbar = ({ setSignedin, initialState }) => {
                 <Link
                   className="dropdown-item"
                   to="/signin"
-                  onClick={() => {
-                    handleSignout();
-                  }}
+                  onClick={handleSignout}
                 >
                   Signout
                 </Link>

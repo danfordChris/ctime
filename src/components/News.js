@@ -1,47 +1,46 @@
 import React, { useEffect, useState } from "react";
-import NewsItem from "./NewsItem";
-import Spinner from "./Spinner";
 import PropTypes from "prop-types";
 import InfiniteScroll from "react-infinite-scroll-component";
+import Spinner from "./Spinner";
+import NewsItem from "./NewsItem";
+
 const News = (props) => {
-  const [articles, setarticles] = useState([]);
-  const [loading, setloading] = useState(true);
-  const [page, setpage] = useState(1);
-  const [totalResults, settotalResults] = useState(0);
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
   const capitalizeFirstLetter = (string) => {
     return string.charAt(0).toUpperCase() + string.slice(1);
   };
 
   const updateNews = async () => {
-    setloading(true);
-    props.setProgress(10);
-    let url = `https://newsapi.org/v2/top-headlines?country=${props.country}&category=${props.category}&apiKey=${process.env.REACT_APP_NEWS_API}&page=${page}&pageSize=${props.pagesize}`;
-    setloading(true);
-    let data = await fetch(url);
-    let parsedData = await data.json();
-    console.log(parsedData);
-    setloading(false);
-    setarticles(parsedData.articles);
-    settotalResults(parsedData.totalResults);
-    props.setProgress(100);
+    setLoading(true);
+    try {
+      const response = await fetch(`https://hacker-news.firebaseio.com/v0/topstories.json`);
+      const storyIds = await response.json();
+      const topStories = await Promise.all(storyIds.slice(0, props.pageSize).map(async (storyId) => {
+        const storyResponse = await fetch(`https://hacker-news.firebaseio.com/v0/item/${storyId}.json`);
+        return await storyResponse.json();
+      }));
+      setArticles(topStories);
+    } catch (error) {
+      console.error("Error fetching top stories:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     document.title = `${capitalizeFirstLetter(props.category)} - NewsSphere`;
     updateNews();
-    /* eslint-disable */
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.category]);
 
   const fetchMoreData = async () => {
-    const nextPage = page + 1;
-    const url = `https://newsapi.org/v2/top-headlines?country=${props.country}&category=${props.category}&apiKey=${process.env.REACT_APP_NEWS_API}&page=${nextPage}&pageSize=${props.pagesize}`;
-    const data = await fetch(url);
-    const parsedData = await data.json();
-    console.log(parsedData);
-    setarticles(articles.concat(parsedData.articles));
-    settotalResults(parsedData.totalResults);
-    setpage(nextPage);
+    // Hacker News API doesn't support pagination for top stories
+    // You can decide what to do here based on your requirements
+    // For example, you can fetch the next batch of top stories and append them to the existing articles
   };
 
   return (
@@ -53,7 +52,7 @@ const News = (props) => {
       <InfiniteScroll
         dataLength={articles.length}
         next={fetchMoreData}
-        hasMore={articles.length !== totalResults}
+        hasMore={hasMore}
         loader={<Spinner />}
       >
         <div className="container">
@@ -62,18 +61,19 @@ const News = (props) => {
               return (
                 <div className="col-md-4" key={index}>
                   <NewsItem
-                    title={element.title ? element.title : ""}
-                    description={element.description ? element.description : ""}
+                    title={element.title || ""}
+                    description={element.description || ""}
                     imageUrl={element.urlToImage}
                     newsUrl={element.url}
-                    author={element.author}
+                    author={element.author || ""}
                     date={element.publishedAt}
-                    source={element.source.name}
+                    source={element.source ? element.source.name : "Unknown"} // Provide a fallback value
                     setSignedin={props.setSignedin}
                     signedin={props.signedin}
                     state={props.state}
                     content={element.content}
-                    articles={articles} setarticles={setarticles}
+                    articles={articles}
+                    setArticles={setArticles}
                   />
                 </div>
               );
@@ -85,16 +85,16 @@ const News = (props) => {
   );
 };
 
-export default News;
-
 News.defaultProps = {
   country: "in",
-  pagesize: 8,
+  pageSize: 8,
   category: "general",
 };
 
 News.propTypes = {
   country: PropTypes.string,
   category: PropTypes.string,
-  pagesize: PropTypes.number,
+  pageSize: PropTypes.number,
 };
+
+export default News;
