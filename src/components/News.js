@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import InfiniteScroll from "react-infinite-scroll-component";
-import Spinner from "./Spinner";
+import Spinner from "../../anti-virus/anti-virus/src/pages/Spinner";
 import NewsItem from "./NewsItem";
 
 const News = (props) => {
