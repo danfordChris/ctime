@@ -33,7 +33,7 @@ function Privacy() {
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-gray-100 rounded-lg">
-      <h1 className="text-3xl font-bold mb-6 text-center">Cryptographic Operations</h1>
+      <h1 className="text-3xl font-bold mb-6 text-center">Encrypt your text</h1>
       <div className="mb-4">
         <label className="block mb-2">Text:</label>
         <input
@@ -65,14 +65,14 @@ function Privacy() {
         <p className="break-all">{encryptedText}</p>
       </div>
       <div className="mb-4">
-        <label className="block mb-2">Custom Encrypted Text:</label>
+        <label className="block mb-2"> Enter Encrypted Text:</label>
         <textarea
           value={customEncryptedText}
           onChange={(e) => setCustomEncryptedText(e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
         ></textarea>
         <button onClick={decryptCustomText} className="mt-2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-          Decrypt Custom Text
+          Decrypt
         </button>
       </div>
       <div>
