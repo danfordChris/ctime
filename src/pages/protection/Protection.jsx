@@ -5,7 +5,10 @@ const ScanReport = ({ report }) => {
     return (
         <div className="border border-gray-300 rounded-lg p-4 mb-4">
             <h2 className="text-xl font-semibold mb-2">Scan Report:</h2>
-            <pre>{JSON.stringify(report, null, 2)}</pre>
+            {/* Display relevant information from the scan report */}
+            <p>Scan Type: {report.data.type}</p>
+            <p>Scan ID: {report.data.id}</p>
+            {/* You can add more details as needed */}
         </div>
     );
 };
@@ -18,6 +21,18 @@ const Protection = () => {
     const [scanReport, setScanReport] = useState(null);
     const [scanHistory, setScanHistory] = useState([]);
     const [error, setError] = useState(null);
+
+    const fetchScanReport = async (id) => {
+        try {
+            const options = { method: 'GET', headers: { accept: 'application/json' } };
+            const response = await fetch(`https://www.virustotal.com/api/v3/analyses/${id}`, options);
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching scan report:', error);
+            throw new Error('An error occurred while fetching the scan report.');
+        }
+    };
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
@@ -49,21 +64,16 @@ const Protection = () => {
                     },
                 }
             );
-
-            const scanResponse = await axios.get(response.data.data.id, {
-                headers: {
-                    'x-apikey': '338a82a035bb9742a3eaeba0a71e4656dbbab1a5fd66a0aa9b609a6025396eeb',
-                },
-            });
-
             setScanComplete(true);
-            setScanReport(scanResponse.data);
-            setScanHistory([...scanHistory, scanResponse.data]); // Store scan report in history
+            const scanId = response.data.data.id;
+            const scanReportData = await fetchScanReport(scanId);
+            setScanReport(scanReportData);
+            setScanHistory([...scanHistory, scanReportData]); // Store scan report in history
             setTimeout(() => {
                 setScanComplete(false);
                 setFile(null);
                 setProgress(0);
-            }, 3000);
+            }, 3000); 
         } catch (error) {
             console.error('Error scanning file:', error);
             setError('An error occurred while scanning the file.');
@@ -105,7 +115,7 @@ const Protection = () => {
                     <div className="text-green-500 font-bold mt-4 text-2xl">
                         File successfully scanned for viruses.
                     </div>
-                    <ScanReport report={scanReport} /> {/* Display the scan report */}
+                    <ScanReport report={scanReport} /> {/* Display the fetched scan report */}
                 </div>
             )}
             {scanHistory.length > 0 && (
