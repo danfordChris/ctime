@@ -5,10 +5,17 @@ const ScanReport = ({ report }) => {
     return (
         <div className="border border-gray-300 rounded-lg p-4 mb-4">
             <h2 className="text-xl font-semibold mb-2">Scan Report:</h2>
-            {/* Display relevant information from the scan report */}
-            <p>Scan Type: {report.data.type}</p>
-            <p>Scan ID: {report.data.id}</p>
-            {/* You can add more details as needed */}
+            <div>
+                <p><strong>Scan ID:</strong> {report.data.id}</p>
+                <p><strong>Scan Type:</strong> {report.data.type}</p>
+                
+                <button type="button" className="bg-indigo-600 text-white text-sm leading-6 font-medium py-2 px-3 rounded-lg"
+                >
+                                <a href={report.data.links.self} target="_blank" rel="noopener noreferrer">View Scan</a>
+                            </button>
+                
+                
+            </div>
         </div>
     );
 };
@@ -21,18 +28,6 @@ const Protection = () => {
     const [scanReport, setScanReport] = useState(null);
     const [scanHistory, setScanHistory] = useState([]);
     const [error, setError] = useState(null);
-
-    const fetchScanReport = async (id) => {
-        try {
-            const options = { method: 'GET', headers: { accept: 'application/json' } };
-            const response = await fetch(`https://www.virustotal.com/api/v3/analyses/${id}`, options);
-            const data = await response.json();
-            return data;
-        } catch (error) {
-            console.error('Error fetching scan report:', error);
-            throw new Error('An error occurred while fetching the scan report.');
-        }
-    };
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
@@ -65,10 +60,8 @@ const Protection = () => {
                 }
             );
             setScanComplete(true);
-            const scanId = response.data.data.id;
-            const scanReportData = await fetchScanReport(scanId);
-            setScanReport(scanReportData);
-            setScanHistory([...scanHistory, scanReportData]); // Store scan report in history
+            setScanReport(response.data);
+            setScanHistory([...scanHistory, response.data]); // Store scan report in history
             setTimeout(() => {
                 setScanComplete(false);
                 setFile(null);
@@ -115,7 +108,7 @@ const Protection = () => {
                     <div className="text-green-500 font-bold mt-4 text-2xl">
                         File successfully scanned for viruses.
                     </div>
-                    <ScanReport report={scanReport} /> {/* Display the fetched scan report */}
+                    <ScanReport report={scanReport} /> {/* Display the scan report */}
                 </div>
             )}
             {scanHistory.length > 0 && (
