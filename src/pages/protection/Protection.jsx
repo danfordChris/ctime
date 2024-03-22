@@ -28,6 +28,8 @@ const Protection = () => {
     const [scanReport, setScanReport] = useState(null);
     const [scanHistory, setScanHistory] = useState([]);
     const [error, setError] = useState(null);
+    const apiKey = import.meta.env.VITE_APP_API;
+
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
@@ -49,7 +51,7 @@ const Protection = () => {
                 formData,
                 {
                     headers: {
-                        'x-apikey': '338a82a035bb9742a3eaeba0a71e4656dbbab1a5fd66a0aa9b609a6025396eeb',
+                        'x-apikey': apiKey ,
                     },
                     onUploadProgress: (progressEvent) => {
                         const progressPercent = Math.round(
