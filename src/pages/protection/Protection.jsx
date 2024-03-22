@@ -1,11 +1,22 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
+const ScanReport = ({ report }) => {
+    return (
+        <div className="border border-gray-300 rounded-lg p-4 mb-4">
+            <h2 className="text-xl font-semibold mb-2">Scan Report:</h2>
+            <pre>{JSON.stringify(report, null, 2)}</pre>
+        </div>
+    );
+};
+
 const Protection = () => {
     const [file, setFile] = useState(null);
     const [progress, setProgress] = useState(0);
     const [scanning, setScanning] = useState(false);
     const [scanComplete, setScanComplete] = useState(false);
+    const [scanReport, setScanReport] = useState(null);
+    const [scanHistory, setScanHistory] = useState([]);
     const [error, setError] = useState(null);
 
     const handleFileChange = (e) => {
@@ -38,13 +49,21 @@ const Protection = () => {
                     },
                 }
             );
+
+            const scanResponse = await axios.get(response.data.data.id, {
+                headers: {
+                    'x-apikey': '338a82a035bb9742a3eaeba0a71e4656dbbab1a5fd66a0aa9b609a6025396eeb',
+                },
+            });
+
             setScanComplete(true);
-            console.log(response.data);
+            setScanReport(scanResponse.data);
+            setScanHistory([...scanHistory, scanResponse.data]); // Store scan report in history
             setTimeout(() => {
                 setScanComplete(false);
                 setFile(null);
                 setProgress(0);
-            }, 3000); 
+            }, 3000);
         } catch (error) {
             console.error('Error scanning file:', error);
             setError('An error occurred while scanning the file.');
@@ -82,8 +101,19 @@ const Protection = () => {
                 </div>
             )}
             {scanComplete && (
-                <div className="text-green-500 font-bold mt-4 text-2xl">
-                    File successfully scanned for viruses.
+                <div>
+                    <div className="text-green-500 font-bold mt-4 text-2xl">
+                        File successfully scanned for viruses.
+                    </div>
+                    <ScanReport report={scanReport} /> {/* Display the scan report */}
+                </div>
+            )}
+            {scanHistory.length > 0 && (
+                <div className="mt-8">
+                    <h2 className="text-2xl font-semibold mb-4">Scan History</h2>
+                    {scanHistory.map((report, index) => (
+                        <ScanReport key={index} report={report} />
+                    ))}
                 </div>
             )}
         </div>
